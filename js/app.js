@@ -1,7 +1,10 @@
 class App {
     constructor() {
+        this.notes = [];
+
         this.$form = document.querySelector('#form'); // Selecting form tag
         this.$noteTitle = document.querySelector('#note-title'); // selecting input tag
+        this.$noteText = document.querySelector('#note-text'); // selecting input tag
         this.$formButtons = document.querySelector('#form-buttons'); // selecting div
         
         this.addEventListeners();
@@ -11,6 +14,17 @@ class App {
         document.body.addEventListener('click', event => {
             this.handleFormClick(event);
         });
+
+        this.$form.addEventListener('submit', event => {
+            event.preventDefault();
+            const title = this.$noteTitle.value;
+            const text = this.$noteText.value;
+            const hasNote = title || text;
+            if(hasNote) {
+                this.addNote({ title, text }); // instead of sending them as parameters, we're sending them as an object.
+            }
+        });
+
     }
 
     handleFormClick(event) {
@@ -33,6 +47,17 @@ class App {
         this.$noteTitle.style.display = 'none';
         this.$formButtons.style.display = 'none';
     }
+
+    addNote(note) {
+        const newNote = {
+            title: note.title,
+            text: note.text,
+            color: 'white',
+            id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1
+        }
+        this.notes = [...this.notes, newNote];
+        console.log(this.notes);
+    }
 }
 
-new App()
+new App();
