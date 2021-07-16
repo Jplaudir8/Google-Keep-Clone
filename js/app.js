@@ -8,7 +8,8 @@ class App {
         this.$noteTitle = document.querySelector('#note-title'); // selecting input tag
         this.$noteText = document.querySelector('#note-text'); // selecting input tag
         this.$formButtons = document.querySelector('#form-buttons'); // selecting div
-        
+        this.$formCloseButton = document.querySelector('#form-close-button');
+
         this.addEventListeners();
     }
 
@@ -26,12 +27,22 @@ class App {
                 this.addNote({ title, text }); // instead of sending them as parameters, we're sending them as an object.
             }
         });
+
+        this.$formCloseButton.addEventListener('click', event => {
+            event.stopPropagation(); // this helps us not propagating the click that would also be read by document.body.addEvenetListener()
+            this.closeForm();
+        });
     }
 
     handleFormClick(event) {
         const isFormClicked = this.$form.contains(event.target); //event.target gives us the clicked element.
+        const title = this.$noteTitle.value;
+        const text = this.$noteText.value;
+        const hasNote = title || text;
         if (isFormClicked) {
             this.openForm();
+        } else if (hasNote) {
+            this.addNote({title, text});
         } else {
             this.closeForm();
         }
