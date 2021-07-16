@@ -47,6 +47,8 @@ class App {
         this.$form.classList.remove('form-open');
         this.$noteTitle.style.display = 'none';
         this.$formButtons.style.display = 'none';
+        this.$noteTitle.value = '';
+        this.$noteText.value = '';
     }
 
     addNote(note) {
@@ -58,6 +60,7 @@ class App {
         }
         this.notes = [...this.notes, newNote];
         this.displayNotes();
+        this.closeForm();
     }
 
     displayNotes() {
