@@ -1,6 +1,9 @@
 class App {
     constructor() {
         this.notes = [];
+        this.title = '';
+        this.text = '';
+        this.id = '';
 
         this.$placeholder = document.querySelector('#placeholder'); // selecting div
         this.$form = document.querySelector('#form'); // Selecting form tag
@@ -8,7 +11,11 @@ class App {
         this.$noteTitle = document.querySelector('#note-title'); // selecting input tag
         this.$noteText = document.querySelector('#note-text'); // selecting input tag
         this.$formButtons = document.querySelector('#form-buttons'); // selecting div
-        this.$formCloseButton = document.querySelector('#form-close-button');
+        this.$formCloseButton = document.querySelector('#form-close-button'); // selecting button
+        this.$modal = document.querySelector('.modal'); // selecting div
+        this.$modalTitle = document.querySelector(".modal-title"); // selecting input tag
+        this.$modalText = document.querySelector(".modal-text"); // selecting input tag
+        this.$modalCloseButton = document.querySelector(".modal-close-button"); // selecting span
 
         this.addEventListeners();
     }
@@ -16,6 +23,8 @@ class App {
     addEventListeners() {
         document.body.addEventListener('click', event => {
             this.handleFormClick(event);
+            this.selectNote(event);
+            this.openModal(event);
         });
 
         this.$form.addEventListener('submit', event => {
@@ -31,6 +40,10 @@ class App {
         this.$formCloseButton.addEventListener('click', event => {
             event.stopPropagation(); // this helps us not propagating the click that would also be read by document.body.addEvenetListener()
             this.closeForm();
+        });
+
+        this.$modalCloseButton.addEventListener('click', event => {
+            this.closeModal(event);
         });
     }
 
@@ -62,6 +75,20 @@ class App {
         this.$noteText.value = '';
     }
 
+    // If a note was clicked then global variables were first populated(with selectNode()). Display note as modal.
+    openModal(event) {
+        if (event.target.closest('.note')) { // target.closest() lets us see if we clicked closest to the element with class 'note' which in fact means if we clicked on the note.
+            this.$modal.classList.toggle('open-modal');
+            this.$modalTitle.value = this.title;
+            this.$modalText.value = this.text;
+        }
+    }
+
+    closeModal(event) {
+        this.editNote();
+        this.$modal.classList.toggle('open-modal');
+    }
+
     addNote(note) {
         const newNote = {
             title: note.title,
@@ -74,11 +101,30 @@ class App {
         this.closeForm();
     }
 
+    editNote() {
+        const title = this.$modalTitle.value;
+        const text = this.$modalText.value;
+        this.notes = this.notes.map(note => // .map() returns a new array so we simply reassign it in its own after performing the mutation.
+            note.id === Number(this.id) ? { ...note, title, text } : note // updating properties of the selected note
+        );
+        this.displayNotes();
+    }
+
+    // populate variables if note has been clicked... openModal() continues with more.
+    selectNote(event) {
+        const $selectedNote = event.target.closest('.note');
+        if (!$selectedNote) return; // stop here if no note was clicked.
+        const [$noteTitle, $noteText] = $selectedNote.children // gives us an array of the elements that are inside this html div.
+        this.title = $noteTitle.innerText;
+        this.text = $noteText.innerText;
+        this.id = $selectedNote.dataset.id; // There will be a property called id which is the same name as we put after the dash in our html down below. (data-id)
+    }
+
     displayNotes() {
         const hasNotes = this.notes.length > 0;
         this.$placeholder.style.display = hasNotes ? 'none' : 'flex';
         this.$notes.innerHTML = this.notes.map(note => `
-            <div style="background: ${note.color};" class="note">
+            <div style="background: ${note.color};" class="note" data-id="${note.id}"> <!-- The 'data-' property is a way of storing data in html -->
                 <div class="${note.title && 'note-title'}">${note.title}</div>
                 <div class="note-text">${note.text}</div>
                 <div class="toolbar-container">
@@ -90,6 +136,7 @@ class App {
             </div>
         `).join("");
     }
+
 }
 
 new App();
