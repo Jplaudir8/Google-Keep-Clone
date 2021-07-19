@@ -16,6 +16,7 @@ class App {
         this.$modalTitle = document.querySelector(".modal-title"); // selecting input tag
         this.$modalText = document.querySelector(".modal-text"); // selecting input tag
         this.$modalCloseButton = document.querySelector(".modal-close-button"); // selecting span
+        this.$colorTooltip = document.querySelector("#color-tooltip"); // selecting img
 
         this.addEventListeners();
     }
@@ -25,6 +26,10 @@ class App {
             this.handleFormClick(event);
             this.selectNote(event);
             this.openModal(event);
+        });
+
+        document.body.addEventListener('mouseover', event => {
+            this.openTooltip(event);
         });
 
         this.$form.addEventListener('submit', event => {
@@ -87,6 +92,16 @@ class App {
     closeModal(event) {
         this.editNote();
         this.$modal.classList.toggle('open-modal');
+    }
+
+    openTooltip(event) {
+        if (!event.target.matches('.toolbar-color')) return; // checking if event.target is the toolbar color
+        this.id = event.target.nextElementSibling.dataset.id; // this will give us the .note div
+        const noteCoords = event.target.getBoundingClientRect(); // this gives specific coordinates of where we are hovering over.
+        const horizontal = noteCoords.left + window.scrollX;
+        const vertical = noteCoords.top + window.scrollY;
+        this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
+        this.$colorTooltip.style.display = 'flex';
     }
 
     addNote(note) {
