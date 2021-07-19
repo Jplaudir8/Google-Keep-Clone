@@ -26,6 +26,7 @@ class App {
             this.handleFormClick(event);
             this.selectNote(event);
             this.openModal(event);
+            this.deleteNote(event);
         });
 
         document.body.addEventListener('mouseover', event => {
@@ -101,6 +102,8 @@ class App {
 
     // If a note was clicked then global variables were first populated(with selectNode()). Display note as modal.
     openModal(event) {
+        if (event.target.matches('.toolbar-delete')) return;
+
         if (event.target.closest('.note')) { // target.closest() lets us see if we clicked closest to the element with class 'note' which in fact means if we clicked on the note.
             this.$modal.classList.toggle('open-modal');
             this.$modalTitle.value = this.title;
@@ -166,6 +169,14 @@ class App {
         this.id = $selectedNote.dataset.id; // There will be a property called id which is the same name as we put after the dash in our html down below. (data-id)
     }
 
+    deleteNote(event) {
+        event.stopPropagation(); // to avoid having the note being opened by calling the openModal function
+        if (!event.target.matches('.toolbar-delete')) return;
+        const id = event.target.dataset.id;
+        this.notes = this.notes.filter(note => note.id !== Number(id));
+        this.displayNotes();
+    }
+
     displayNotes() {
         const hasNotes = this.notes.length > 0;
         this.$placeholder.style.display = hasNotes ? 'none' : 'flex';
@@ -176,7 +187,7 @@ class App {
                 <div class="toolbar-container">
                     <div class="toolbar">
                         <img class="toolbar-color" data-id="${note.id}" src="https://lh3.googleusercontent.com/proxy/T735jw1mDEmlTdgwgik2I28cSKhZWjaYXqrf3wt2jGBDxpApJWQsecXgdKG9EhZrGsqyDWOQVaYi_YYSvmCk2C6JdaN5k5GYnqF46zWgJDRQKcyK0B8udLuazcNlcCgx">
-                        <img class="toolbar-delete" src="https://icon.now.sh/delete">
+                        <img class="toolbar-delete" data-id="${note.id}" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSovwlVVOj3uhOzAOD12w2wKxp6_CHZaDLt5A&usqp=CAU">
                     </div>
                 </div>
             </div>
