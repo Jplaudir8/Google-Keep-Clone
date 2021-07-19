@@ -1,6 +1,6 @@
 class App {
     constructor() {
-        this.notes = [];
+        this.notes = JSON.parse(localStorage.getItem('notes')) || []; // JSON.parse lets us convert it back to an array. Its the opposite to using stringify.
         this.title = '';
         this.text = '';
         this.id = '';
@@ -18,6 +18,7 @@ class App {
         this.$modalCloseButton = document.querySelector(".modal-close-button"); // selecting span
         this.$colorTooltip = document.querySelector("#color-tooltip"); // selecting img
 
+        this.render();
         this.addEventListeners();
     }
 
@@ -121,7 +122,7 @@ class App {
         this.id = event.target.dataset.id;
         const noteCoords = event.target.getBoundingClientRect(); // this gives specific coordinates of where we are hovering over.
         const horizontal = noteCoords.left + window.scrollX;
-        const vertical = window.scrollY - 20;
+        const vertical = window.scrollY - 25;
         this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
         this.$colorTooltip.style.display = 'flex';
     }
@@ -139,7 +140,7 @@ class App {
             id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1
         }
         this.notes = [...this.notes, newNote];
-        this.displayNotes();
+        this.render();
         this.closeForm();
     }
 
@@ -149,14 +150,14 @@ class App {
         this.notes = this.notes.map(note => // .map() returns a new array so we simply reassign it in its own after performing the mutation.
             note.id === Number(this.id) ? { ...note, title, text } : note // updating properties of the selected note
         );
-        this.displayNotes();
+        this.render();
     }
 
     editNoteColor(color) {
         this.notes = this.notes.map(note => 
             note.id === Number(this.id) ? { ...note, color } : note
         );
-        this.displayNotes();
+        this.render();
     }
 
     // populate variables if note has been clicked... openModal() continues with more.
@@ -174,7 +175,16 @@ class App {
         if (!event.target.matches('.toolbar-delete')) return;
         const id = event.target.dataset.id;
         this.notes = this.notes.filter(note => note.id !== Number(id));
+        this.render();
+    }
+
+    render() {
+        this.saveNotes();
         this.displayNotes();
+    }
+
+    saveNotes() {
+        localStorage.setItem('notes', JSON.stringify(this.notes)); // we create a key value pair for localStorage. Remember we use stringify because to store a value in local storage it has to be in string datatype.
     }
 
     displayNotes() {
