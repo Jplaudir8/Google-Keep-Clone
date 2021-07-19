@@ -32,6 +32,25 @@ class App {
             this.openTooltip(event);
         });
 
+        document.body.addEventListener('mouseout', event => {
+            this.closeTooltip(event);
+        });
+
+        this.$colorTooltip.addEventListener('mouseover', function() { // had to change the callback function to a function declaration to use the 'this' keyword which in this case refers to our own object ($colorTooltip)
+            this.style.display = 'flex';
+        });
+ 
+        this.$colorTooltip.addEventListener('mouseout', function() { // had to change the callback function to a function declaration to use the 'this' keyword which in this case refers to our own object ($colorTooltip)
+            this.style.display = 'none';
+        });
+
+        this.$colorTooltip.addEventListener('click', event => {
+            const color = event.target.dataset.color;
+            if (color) {
+                this.editNoteColor(color);
+            }
+        })
+
         this.$form.addEventListener('submit', event => {
             event.preventDefault();
             const title = this.$noteTitle.value;
@@ -96,12 +115,17 @@ class App {
 
     openTooltip(event) {
         if (!event.target.matches('.toolbar-color')) return; // checking if event.target is the toolbar color
-        this.id = event.target.nextElementSibling.dataset.id; // this will give us the .note div
+        this.id = event.target.dataset.id;
         const noteCoords = event.target.getBoundingClientRect(); // this gives specific coordinates of where we are hovering over.
         const horizontal = noteCoords.left + window.scrollX;
-        const vertical = noteCoords.top + window.scrollY;
+        const vertical = window.scrollY - 20;
         this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
         this.$colorTooltip.style.display = 'flex';
+    }
+
+    closeTooltip(event) {
+        if (!event.target.matches('.toolbar-color')) return;
+        this.$colorTooltip.style.display = 'none';
     }
 
     addNote(note) {
@@ -125,6 +149,13 @@ class App {
         this.displayNotes();
     }
 
+    editNoteColor(color) {
+        this.notes = this.notes.map(note => 
+            note.id === Number(this.id) ? { ...note, color } : note
+        );
+        this.displayNotes();
+    }
+
     // populate variables if note has been clicked... openModal() continues with more.
     selectNote(event) {
         const $selectedNote = event.target.closest('.note');
@@ -144,8 +175,8 @@ class App {
                 <div class="note-text">${note.text}</div>
                 <div class="toolbar-container">
                     <div class="toolbar">
-                        <img src="toolbar-color" src="https://icon.now.sh/palette">
-                        <img src="toolbar-delete" src="https://icon.now.sh/delete">
+                        <img class="toolbar-color" data-id="${note.id}" src="https://lh3.googleusercontent.com/proxy/T735jw1mDEmlTdgwgik2I28cSKhZWjaYXqrf3wt2jGBDxpApJWQsecXgdKG9EhZrGsqyDWOQVaYi_YYSvmCk2C6JdaN5k5GYnqF46zWgJDRQKcyK0B8udLuazcNlcCgx">
+                        <img class="toolbar-delete" src="https://icon.now.sh/delete">
                     </div>
                 </div>
             </div>
